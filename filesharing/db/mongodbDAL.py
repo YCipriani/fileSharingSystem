@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 
-class mongodbDAL:
 
+class mongodbDAL:
     def __init__(self, db_name):
         self.connection_string = "mongodb+srv://ycipriani:1212@cluster0.ey0sv.mongodb.net/Tx?retryWrites=true&w=majority"
         self.client = MongoClient(self.connection_string)
