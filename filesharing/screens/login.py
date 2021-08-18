@@ -1,17 +1,16 @@
 from tkinter import *
-import json
 from threading import Thread
-
 import requests
-
-from filesharing.app import start_app
+from filesharing.common.globals import scheduler
 from filesharing.common.read_credentials import get_all_credentials
+from filesharing.app import start_app
 
-# from filesharing.app import start_app
 from tkinter import messagebox
 
+from filesharing.db.mongodbDAL import mongodbDAL
 
-def login():
+
+def login(my_request):
     global credentials
     global thread
     credentials = get_all_credentials()
@@ -47,35 +46,26 @@ def login():
         text="Login",
         width=10,
         height=1,
-        command=lambda: login_verify(username_verify.get(), password_verify.get()),
+        command=lambda: login_verify(my_request, username_verify.get(), password_verify.get()),
     ).pack()
 
     login_screen.mainloop()
 
 
-def login_verify(username, password):
+def login_verify(my_request, username, password):
     user_found_flag = False
     for c in credentials:
         if username == c["username"]:
             user_found_flag = True
         if username == c["username"] and password == c["password"]:
-            return login_sucess()
+            return user_menu(my_request)
     if user_found_flag:
         return password_not_recognised()
     else:
         return user_not_found()
 
 
-def login_sucess():
-    global login_success_screen
-    login_success_screen = Toplevel(login_screen)
-    login_success_screen.title("Success")
-    login_success_screen.geometry("150x100")
-    Button(login_success_screen, text="OK", command=user_menu()).pack()
-
-
-def user_menu(request_type="Tx"):
-    login_success_screen.withdraw()
+def user_menu(my_request):
     login_screen.withdraw()
     messagebox.showinfo("SUCCESS", "Login Successful")
     global user_menu_screen
@@ -92,7 +82,7 @@ def user_menu(request_type="Tx"):
     )  ## this part allows you to only change the location
     user_menu_screen.geometry("300x118")
     Button(user_menu_screen, text="Show Logs", command=show_logs).pack()
-    if request_type == "Tx":
+    if my_request.request_type == "Tx":
         Button(
             user_menu_screen,
             text="Show Time Left Until Next Request",
@@ -104,17 +94,29 @@ def user_menu(request_type="Tx"):
             text="Show Number of Checks Left",
             command=show_number_of_checks_left,
         ).pack()
-    Button(user_menu_screen, text="Start Service", command=start_service).pack()
+    Button(user_menu_screen, text="Start Service", command=lambda: start_service(my_request)).pack()
     Button(user_menu_screen, text="Shutdown Service", command=shutdown_service).pack()
 
 
-def start_service():
-    global login_success_screen
-    start_service_screen = Toplevel(user_menu_screen)
-    start_service_screen.title("Success")
-    start_service_screen.geometry("150x100")
+def start_service(my_request):
     thread = Thread(target=start_app)
     thread.start()
+    file = {"file_name": my_request.file_name_and_extension, "file_location": my_request.file_location}
+    dal = mongodbDAL(my_request.request_type)
+    dal.add_dummy_file_to_file_list(my_request.file_location)
+    dal.list_of_files_to_send.append(file)
+    messagebox.showinfo("SUCCESS", "Flask Service has started")
+    if my_request.request_type == "Tx":
+        scheduler.add_job(func=dal.add_dummy_file_to_file_list, trigger="interval", seconds=my_request.time, args=my_request.file_location)
+        scheduler.add_job(func=dal.add_files_to_collection, trigger="interval", seconds=my_request.time, args=my_request.file_location)
+        scheduler.start()
+    if my_request.request_type == "Rx":
+        for i in range(my_request.number_of_checks):
+            k = i+1
+            if dal.find_file_by_collection(my_request.file_name_and_extension, my_request.file_location):
+                print("Round " + str(k) + ": File Found")
+            else:
+                print("Round " + str(k) + ": File Not Found")
 
 
 def show_time():
@@ -127,6 +129,7 @@ def show_number_of_checks_left():
 
 def shutdown_service():
     requests.get("http://127.0.0.1:5000/shutdown")
+    messagebox.showinfo("SUCCESS", "Flask Service has shutdown")
     return "Server shutting down..."
 
 
@@ -148,6 +151,3 @@ def password_not_recognised():
 def user_not_found():
     messagebox.showerror("ERROR", "User Not Found")
 
-
-def delete_login_success():
-    login_success_screen.destroy()
