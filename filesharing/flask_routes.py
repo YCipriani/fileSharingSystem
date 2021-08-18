@@ -4,6 +4,7 @@ import json
 from filesharing.app import flask_app
 from filesharing.common.logger import get_logger
 
+
 class Greet(Resource):
     def get(self):
         return {"message": "Hello, how are you?"}
