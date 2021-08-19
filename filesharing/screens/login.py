@@ -1,29 +1,30 @@
+import threading
 import time
 from tkinter import *
 from threading import Thread
-from tkinter.scrolledtext import ScrolledText
 from os.path import dirname
 import tkinter as tk
-import schedule
 
-import tkinter.scrolledtext as tkscrolled
 
 import requests
 
-from filesharing.common.globals import scheduler, credentials
+from filesharing.common.globals import credentials
 from filesharing.common.logger import get_logger
-from filesharing.app import start_app
+from filesharing.app import start_app, new_request
 
 from tkinter import messagebox
 
-from filesharing.db.mongodbDAL import mongodbDAL
 from filesharing.utils.current_time import get_current_date_and_time
+from filesharing.utils.port import read_port_from_file
+
+lock = threading.Lock()
 
 
 def login(my_request):
     global log
     log = get_logger()
     global thread
+    global thread1
     global login_screen
     login_screen = Tk()
     login_screen.title("Login")
@@ -93,16 +94,14 @@ def user_menu(my_request):
     x = (ws / 2) - (w / 2)
     y = (hs / 2) - (h / 2)
     user_menu_screen.geometry("+%d+%d" % (x + 100, y + 100))
-    user_menu_screen.geometry("300x175")
-    Button(user_menu_screen, text="Show Logs", command=show_logs).pack()
-    Button(user_menu_screen, text="Clear Logs", command=clear_logs).pack()
+    user_menu_screen.geometry("300x150")
     if my_request.request_type == "Tx":
         Button(
             user_menu_screen,
             text="Show Time Left Until Next Request",
             command=show_time,
         ).pack()
-    else:
+    if my_request.request_type == "Rx":
         Button(
             user_menu_screen,
             text="Show Number of Checks Left",
@@ -113,16 +112,25 @@ def user_menu(my_request):
         text="Start Service",
         command=lambda: start_service(my_request),
     ).pack()
-    Button(user_menu_screen, text="Shutdown Service", command=shutdown_service).pack()
-    Button(user_menu_screen, text="Exit Program", command=exit_program).pack()
+    Button(user_menu_screen, text="Stop Service", command=stop_service).pack()
+    Button(user_menu_screen, text="Show Logs", command=show_logs).pack()
+    Button(user_menu_screen, text="Clear Logs", command=clear_logs).pack()
 
 
 def start_service(my_request):
     thread = Thread(target=start_app)
+    thread.daemon = True
     thread.start()
     messagebox.showinfo("SUCCESS", "Service has started")
     log.info(get_current_date_and_time() + "Service Started")
     send_request(my_request)
+
+
+def stop_service():
+    requests.get("http://127.0.0.1:5000/shutdown")
+    messagebox.showinfo("SUCCESS", "Service has stopped")
+    log.info(get_current_date_and_time() + "Service has stopped")
+
 
 def send_tx_request(request_string, time_interval):
     while True:
@@ -130,37 +138,55 @@ def send_tx_request(request_string, time_interval):
         time.sleep(time_interval)
 
 
+def send_rx_request(request_string, my_request):
+    for i in range(my_request.number_of_checks):
+        k = i + 1
+        if requests.post(request_string):
+            print("Round " + str(k) + ": File Found")
+            log.info(
+                get_current_date_and_time()
+                + "File "
+                + my_request.file_name_and_extension
+                + " was found in collection "
+                + my_request.file_location
+                + "."
+            )
+        else:
+            print("Round " + str(k) + ": File Not Found")
+            log.info(
+                get_current_date_and_time()
+                + "File "
+                + my_request.file_name_and_extension
+                + " was NOT found in collection "
+                + my_request.file_location
+                + "."
+            )
+
+
 def send_request(my_request):
-    request_string = "http://127.0.0.1:5000/send_request?request_type=" + my_request.request_type + "&file_name=" + my_request.file_name_and_extension + "&file_location=" + my_request.file_location
-    if my_request.request_type == "Tx":
-        thread1 = Thread(target=send_tx_request, args=(request_string, my_request.time))
-        thread1.start()
-    # if my_request.request_type == "Rx":
-    #     for i in range(my_request.number_of_checks):
-    #         k = i + 1
-    #         if dal.find_file_by_collection(
-    #             my_request.file_name_and_extension, my_request.file_location
-    #         ):
-    #             print("Round " + str(k) + ": File Found")
-    #             log.info(get_current_date_and_time() +
-    #                 "Round "
-    #                      + str(k)
-    #                      + ": "
-    #                      + my_request.file_name_and_extension
-    #                      + " found in collection "
-    #                      + my_request.file_location
-    #                      + "."
-    #                      )
-    #         else:
-    #             print(" Round " + str(k) + ": File Not Found")
-    #             log.info(get_current_date_and_time() +
-    #                 "Round "
-    #                      + str(k)
-    #                      + ": "
-    #                      + my_request.file_name_and_extension
-    #                      + " not found in "
-    #                 "collection " + my_request.file_location + "."
-    #                      )
+    request_string = (
+        "http://127.0.0.1:"
+        + read_port_from_file()
+        + "/send_request?request_type="
+        + my_request.request_type
+        + "&file_name="
+        + my_request.file_name_and_extension
+        + "&file_location="
+        + my_request.file_location
+    )
+    with lock:
+        if my_request.request_type == "Tx":
+            # send_tx_request(request_string, my_request.time)
+            thread1 = Thread(
+                target=send_tx_request, args=(request_string, my_request.time)
+            )
+            thread1.daemon = True
+            thread1.start()
+        if my_request.request_type == "Rx":
+            # send_rx_request(request_string, my_request)
+            thread1 = Thread(target=send_rx_request, args=(request_string, my_request))
+            thread1.daemon = True
+            thread1.start()
 
 
 def show_time():
@@ -171,11 +197,11 @@ def show_number_of_checks_left():
     pass
 
 
-def shutdown_service():
-    requests.get("http://127.0.0.1:5000/shutdown")
+def exit_program():
     messagebox.showinfo("SUCCESS", "Service has shutdown")
     log.info(get_current_date_and_time() + "Service has Shutdown")
-    return "Server shutting down..."
+    requests.get("http://127.0.0.1:5000/shutdown")
+    exit(0)
 
 
 def show_logs():
@@ -192,10 +218,6 @@ def show_logs():
 def clear_logs():
     open(dirname(dirname(__file__)) + "/logs/demo.log", "w").close()
     messagebox.showerror("SUCCESS", "Logs have been cleared")
-
-
-def exit_program():
-    exit(0)
 
 
 def password_not_recognised():
