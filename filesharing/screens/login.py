@@ -1,5 +1,6 @@
 import threading
 import time
+import datetime
 from tkinter import *
 from threading import Thread
 from os.path import dirname
@@ -14,7 +15,8 @@ from filesharing.app import start_app, new_request
 
 from tkinter import messagebox
 
-from filesharing.utils.current_time import get_current_date_and_time
+from filesharing.utils.current_time import get_current_date_and_time, get_seconds_diff, \
+    write_service_started_time_to_file
 from filesharing.utils.port import read_port_from_file
 
 lock = threading.Lock()
@@ -99,7 +101,7 @@ def user_menu(my_request):
         Button(
             user_menu_screen,
             text="Show Time Left Until Next Request",
-            command=show_time,
+            command=lambda: show_time(my_request),
         ).pack()
     if my_request.request_type == "Rx":
         Button(
@@ -175,8 +177,11 @@ def send_request(my_request):
         + my_request.file_location
     )
     with lock:
+        now = datetime.datetime.now()  # current date and time
+        end = now.strftime("%Y-%m-%d %H:%M:%S")
+        date1_obj = datetime.datetime.strptime(end, '%Y-%m-%d %H:%M:%S')
+        write_service_started_time_to_file(date1_obj.strftime('%Y-%m-%d %H:%M:%S'))
         if my_request.request_type == "Tx":
-            # send_tx_request(request_string, my_request.time)
             thread1 = Thread(
                 target=send_tx_request, args=(request_string, my_request.time)
             )
@@ -189,8 +194,9 @@ def send_request(my_request):
             thread1.start()
 
 
-def show_time():
-    pass
+def show_time(my_request):
+    d = get_seconds_diff(my_request.time)
+    messagebox.showinfo("TIME LEFT UNTIL NEXT REQUEST", str(d) + " Seconds")
 
 
 def show_number_of_checks_left():
