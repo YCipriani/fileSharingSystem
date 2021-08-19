@@ -1,6 +1,6 @@
 import json
 from filesharing.common.logger import get_logger
-from filesharing.utils.current_time import print_date_time
+from filesharing.utils.current_time import get_current_date_and_time
 
 
 def get_all_credentials():
@@ -10,7 +10,7 @@ def get_all_credentials():
     )
     data = json.load(f)
     if data:
-        log.info(print_date_time() + "All credentials have been retrieved")
+        log.info(get_current_date_and_time() + "All credentials have been retrieved")
         return data
     else:
-        log.info(print_date_time() + "No credentials found")
+        log.info(get_current_date_and_time() + "No credentials found")

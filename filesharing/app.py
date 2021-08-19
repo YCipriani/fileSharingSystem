@@ -1,15 +1,14 @@
-import os
 import json
-import requests
+from bson import json_util
 from simplexml import dumps
-from flask import Flask, make_response, jsonify, request
+from flask import Flask, make_response, request
 from flask_restful import Api
 from filesharing.common.globals import scheduler
+from filesharing.db.mongodbDAL import mongodbDAL
 from filesharing.screens import login
-from filesharing.utils.current_time import print_date_time
+from filesharing.utils.current_time import get_current_date_and_time, create_dummy_file
 from filesharing.utils.notifications import send_email
 from filesharing.domains.request import Request
-import time
 import atexit
 from filesharing.common.logger import get_logger
 
@@ -22,7 +21,40 @@ admin_email = "yonatancipriani@outlook.com"
 
 @flask_app.route("/", methods=["GET"])
 def home():
-    return """<h1>Flask App is Running</h1>"""
+    return """<h1>Service is Running</h1>"""
+
+
+@flask_app.route("/send_request", methods=["POST"])
+def send_request():
+    log = get_logger()
+    if len(request.args.to_dict()) == 3:
+        request_type = request.args.get("request_type")
+        file_name = request.args.get("file_name")
+        file_location = request.args.get("file_location")
+    else:
+        if len(request.json) == 3:
+            request_type = request.json['request_type']
+            file_name = request.json['file_name']
+            file_location = request.json['file_location']
+        else:
+            log.error("Not all of the arguments were provided (request_type, file_name, file_location")
+            return "Not all of the arguments were provided (request_type, file_name, file_location"
+    file = {
+        "file_name": file_name,
+        "file_location": file_location,
+    }
+    dal = mongodbDAL(request_type)
+    collection = dal.db.get_collection(file_location)
+    dummy_file = create_dummy_file(file_location)
+    collection.insert_one(dummy_file)
+    log.info(get_current_date_and_time() + "Dummy file " + dummy_file["file_name"] + " was stored in collection" +
+    dummy_file["file_location"] + ".")
+    if not dal.find_file_by_collection(file_name, file_location):
+        collection.insert_one(file)
+        log.info(get_current_date_and_time() + "File " + file_name + " was stored in collection " + file_location + ".")
+        return json.loads(json_util.dumps(file))
+    log.error(get_current_date_and_time() + "File " + file_name + " already exists in collection " + file_location + ".")
+    return "File is already in the collection/table"
 
 
 def shutdown_server():
@@ -71,7 +103,8 @@ def main():
             time=int(time_interval),
         )
         # send_email("Tx", file_name_and_extension, file_location, admin_email)
-    else:
+    elif int(request_type) == 0:
+        n =0
         while True:
             number_of_checks = input(
                 "Enter the number of checks (respond only with numbers no letters):\t"
@@ -80,7 +113,7 @@ def main():
                 n = int(number_of_checks)
                 break
             except ValueError:
-                log.error(print_date_time() + "User entered text instead of only digits")
+                log.error(get_current_date_and_time() + "User entered text instead of only digits")
                 print("ERROR: Only NUMBERS are allowed")
                 c = input("Do you want to try again? (y/n)")
                 if c == "y":
@@ -95,6 +128,9 @@ def main():
             number_of_checks=n,
         )
         # send_email("Rx", file_name_and_extension, file_location, admin_email)
+    else:
+        log.error(get_current_date_and_time() + "Only Tx (press 1) and Rx (press 0) requests are allowed")
+        return "Only Tx (press 1) and Rx (press 0) requests are allowed"
 
     login.login(request_test)
 

@@ -1,8 +1,11 @@
+import time
 from tkinter import *
 from threading import Thread
 from tkinter.scrolledtext import ScrolledText
 from os.path import dirname
 import tkinter as tk
+import schedule
+
 import tkinter.scrolledtext as tkscrolled
 
 import requests
@@ -14,7 +17,7 @@ from filesharing.app import start_app
 from tkinter import messagebox
 
 from filesharing.db.mongodbDAL import mongodbDAL
-from filesharing.utils.current_time import print_date_time
+from filesharing.utils.current_time import get_current_date_and_time
 
 
 def login(my_request):
@@ -67,13 +70,13 @@ def login_verify(my_request, username, password):
         if username == c["username"]:
             user_found_flag = True
         if username == c["username"] and password == c["password"]:
-            log.info(print_date_time() + "Login Successful")
+            log.info(get_current_date_and_time() + "Login Successful")
             return user_menu(my_request)
     if user_found_flag:
-        log.error(print_date_time() + "Password not recognized")
+        log.error(get_current_date_and_time() + "Password not recognized")
         return password_not_recognised()
     else:
-        log.error(print_date_time() + "User not found")
+        log.error(get_current_date_and_time() + "User not found")
         return user_not_found()
 
 
@@ -117,55 +120,47 @@ def user_menu(my_request):
 def start_service(my_request):
     thread = Thread(target=start_app)
     thread.start()
-    file = {
-        "file_name": my_request.file_name_and_extension,
-        "file_location": my_request.file_location,
-    }
-    dal = mongodbDAL(my_request.request_type)
-    dal.add_dummy_file_to_file_list(my_request.file_location)
-    dal.list_of_files_to_send.append(file)
     messagebox.showinfo("SUCCESS", "Service has started")
-    log.info(print_date_time() + "Service Started")
+    log.info(get_current_date_and_time() + "Service Started")
+    send_request(my_request)
+
+def send_tx_request(request_string, time_interval):
+    while True:
+        requests.post(request_string)
+        time.sleep(time_interval)
+
+
+def send_request(my_request):
+    request_string = "http://127.0.0.1:5000/send_request?request_type=" + my_request.request_type + "&file_name=" + my_request.file_name_and_extension + "&file_location=" + my_request.file_location
     if my_request.request_type == "Tx":
-        scheduler.add_job(
-            func=dal.add_dummy_file_to_file_list,
-            trigger="interval",
-            seconds=my_request.time,
-            args=my_request.file_location,
-        )
-        scheduler.add_job(
-            func=dal.add_files_to_collection,
-            trigger="interval",
-            seconds=my_request.time,
-            args=my_request.file_location,
-        )
-        scheduler.start()
-    if my_request.request_type == "Rx":
-        for i in range(my_request.number_of_checks):
-            k = i + 1
-            if dal.find_file_by_collection(
-                my_request.file_name_and_extension, my_request.file_location
-            ):
-                print("Round " + str(k) + ": File Found")
-                log.info(print_date_time() +
-                    "Round "
-                    + str(k)
-                    + ": "
-                    + my_request.file_name_and_extension
-                    + " found in collection "
-                    + my_request.file_location
-                    + "."
-                )
-            else:
-                print(" Round " + str(k) + ": File Not Found")
-                log.info(print_date_time() +
-                    "Round "
-                    + str(k)
-                    + ": "
-                    + my_request.file_name_and_extension
-                    + " not found in "
-                    "collection " + my_request.file_location + "."
-                )
+        thread1 = Thread(target=send_tx_request, args=(request_string, my_request.time))
+        thread1.start()
+    # if my_request.request_type == "Rx":
+    #     for i in range(my_request.number_of_checks):
+    #         k = i + 1
+    #         if dal.find_file_by_collection(
+    #             my_request.file_name_and_extension, my_request.file_location
+    #         ):
+    #             print("Round " + str(k) + ": File Found")
+    #             log.info(get_current_date_and_time() +
+    #                 "Round "
+    #                      + str(k)
+    #                      + ": "
+    #                      + my_request.file_name_and_extension
+    #                      + " found in collection "
+    #                      + my_request.file_location
+    #                      + "."
+    #                      )
+    #         else:
+    #             print(" Round " + str(k) + ": File Not Found")
+    #             log.info(get_current_date_and_time() +
+    #                 "Round "
+    #                      + str(k)
+    #                      + ": "
+    #                      + my_request.file_name_and_extension
+    #                      + " not found in "
+    #                 "collection " + my_request.file_location + "."
+    #                      )
 
 
 def show_time():
@@ -179,13 +174,13 @@ def show_number_of_checks_left():
 def shutdown_service():
     requests.get("http://127.0.0.1:5000/shutdown")
     messagebox.showinfo("SUCCESS", "Service has shutdown")
-    log.info(print_date_time() + "Service has Shutdown")
+    log.info(get_current_date_and_time() + "Service has Shutdown")
     return "Server shutting down..."
 
 
 def show_logs():
     with open(dirname(dirname(__file__)) + "/logs/demo.log", "r") as f:
-        log.info(print_date_time() + "Showing Logs...")
+        log.info(get_current_date_and_time() + "Showing Logs...")
         master = tk.Tk()
         master.title(string="Logs")
         text_widget = tk.Text(master, height=50, width=100)
@@ -196,6 +191,7 @@ def show_logs():
 
 def clear_logs():
     open(dirname(dirname(__file__)) + "/logs/demo.log", "w").close()
+    messagebox.showerror("SUCCESS", "Logs have been cleared")
 
 
 def exit_program():

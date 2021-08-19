@@ -1,6 +1,6 @@
 import smtplib
 from filesharing.common.logger import get_logger
-from filesharing.utils.current_time import print_date_time
+from filesharing.utils.current_time import get_current_date_and_time
 
 
 def send_email(
@@ -31,6 +31,6 @@ def send_email(
         server.login(gmail_user, gmail_password)
         server.sendmail(sent_from, to, message)
         server.close()
-        log.info(print_date_time() + "Email successfully sent!")
+        log.info(get_current_date_and_time() + "Email successfully sent!")
     except:
-        log.error(print_date_time() + "Something went wrong. Email not sent")
+        log.error(get_current_date_and_time() + "Something went wrong. Email not sent")
