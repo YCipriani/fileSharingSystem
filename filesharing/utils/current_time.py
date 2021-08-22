@@ -8,7 +8,6 @@ def service_started_time():
         return json.load(f)
 
 
-
 def write_service_started_time_to_file(time, flag):
     if flag:
         jsonData = {"started": True, "started_time": time}

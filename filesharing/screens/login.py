@@ -133,10 +133,12 @@ def stop_service():
         requests.get("http://127.0.0.1:5000/shutdown")
     except:
         print("Connection max Retries")
-    now = datetime.datetime.now()  # current date and time
-    end = now.strftime("%Y-%m-%d %H:%M:%S")
-    date1_obj = datetime.datetime.strptime(end, '%Y-%m-%d %H:%M:%S')
-    write_service_started_time_to_file(date1_obj.strftime('%Y-%m-%d %H:%M:%S'), 0)
+    finally:
+        now = datetime.datetime.now()  # current date and time
+        end = now.strftime("%Y-%m-%d %H:%M:%S")
+        date1_obj = datetime.datetime.strptime(end, '%Y-%m-%d %H:%M:%S')
+        write_service_started_time_to_file(date1_obj.strftime('%Y-%m-%d %H:%M:%S'), 0)
+        write_number_of_checks_made(0)
     messagebox.showinfo("SUCCESS", "Service has stopped")
     log.info(get_current_date_and_time() + "Service has stopped")
 
@@ -219,13 +221,6 @@ def show_number_of_checks_made():
     else:
         messagebox.showerror("ERROR", "NO CHECKS MADE. MAKE SURE YOU START THE SERVICE")
         log.info("No checks made yet.")
-
-
-def exit_program():
-    messagebox.showinfo("SUCCESS", "Service has shutdown")
-    log.info(get_current_date_and_time() + "Service has Shutdown")
-    requests.get("http://127.0.0.1:5000/shutdown")
-    exit(0)
 
 
 def show_logs():
