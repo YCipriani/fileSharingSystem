@@ -20,4 +20,4 @@ def write_port_to_file(port):
         "/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/resources/port.txt",
         "a",
     )
-    file.write("\n" + str(port) + "\n")
+    file.write("\n" + str(port))

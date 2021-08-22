@@ -1,12 +1,13 @@
 import json
-import requests
+import time
+
 from bson import json_util
 from simplexml import dumps
 from flask import Flask, make_response, request
 from flask_restful import Api
 from filesharing.db.mongodbDAL import mongodbDAL
 from filesharing.screens import login
-from filesharing.utils.current_time import get_current_date_and_time, create_dummy_file
+from filesharing.utils.current_time import get_current_date_and_time, create_dummy_file, get_seconds_diff
 from filesharing.utils.notifications import send_email
 from filesharing.domains.request import Request
 import socket
@@ -117,6 +118,55 @@ def send_request():
                 + "."
             )
             return None
+
+
+@flask_app.route("/send_tx_request", methods=["POST"])
+def send_the_tx_request():
+    log = get_logger()
+    if len(request.args.to_dict()) == 3:
+        file_name = request.args.get("file_name")
+        file_location = request.args.get("file_location")
+        time_interval = request.args.get("time_interval")
+    else:
+        if len(request.json) == 3:
+            time_interval = request.json["time_interval"]
+            file_name = request.json["file_name"]
+            file_location = request.json["file_location"]
+        else:
+            log.error(
+                "Not all of the arguments were provided (request_type, file_name, file_location"
+            )
+            return "Not all of the arguments were provided (request_type, file_name, file_location"
+    file = {
+        "file_name": file_name,
+        "file_location": file_location,
+    }
+    dal = mongodbDAL("Tx")
+    collection = dal.db.get_collection(file_location)
+    rx_dal = mongodbDAL("Rx")
+    rx_collection = rx_dal.db.get_collection(file_location)
+    time.sleep(get_seconds_diff(int(time_interval)))
+    if not dal.find_file_by_collection(file_name, file_location):
+        collection.insert_one(file)
+        rx_collection.insert_one(file)
+        log.info(
+            get_current_date_and_time()
+            + "File "
+            + file_name
+            + " was stored in collection "
+            + file_location
+            + "."
+        )
+        return json.loads(json_util.dumps(file))
+    log.error(
+        get_current_date_and_time()
+        + "File "
+        + file_name
+        + " already exists in collection "
+        + file_location
+        + "."
+    )
+    return "File is already in the collection/table"
 
 
 def shutdown_server():
