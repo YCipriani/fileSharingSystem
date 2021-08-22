@@ -1,26 +1,27 @@
 import datetime
+import json
 from random import randint
 
 
 def service_started_time():
-    file = open(
-        "/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/resources/service_started_time.txt",
-        "r",
-    )
-    lines = file.read().splitlines()
-    return lines[-1]
+    with open('/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/resources/service_started_time.json') as f:
+        return json.load(f)
 
 
-def write_service_started_time_to_file(time):
-    file = open(
-        "/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/resources/service_started_time.txt",
-        "w",
-    )
-    file.write(time)
+
+def write_service_started_time_to_file(time, flag):
+    if flag:
+        jsonData = {"started": True, "started_time": time}
+    else:
+        jsonData = {"started": False, "started_time": time}
+    with open("/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/resources/service_started_time.json", 'w') as outfile:
+        json.dump(jsonData, outfile, sort_keys=True, indent=4,
+                  ensure_ascii=False)
 
 
 def get_seconds_diff(time_interval):
-    start = service_started_time()
+    d = service_started_time()
+    start = d["started_time"]
     now = datetime.datetime.now()  # current date and time
     end = now.strftime("%Y-%m-%d %H:%M:%S")
 
@@ -29,6 +30,23 @@ def get_seconds_diff(time_interval):
 
     difference_seconds = abs((date1_obj - date2_obj).seconds)
     return time_interval - (difference_seconds % time_interval)
+
+
+def number_of_checks_made():
+    file = open(
+        "/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/resources/number_of_checks.txt",
+        "r",
+    )
+    lines = file.read().splitlines()
+    return lines[-1]
+
+
+def write_number_of_checks_made(n):
+    file = open(
+        "/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/resources/number_of_checks.txt",
+        "w",
+    )
+    file.write(str(n))
 
 
 def get_current_date_and_time():

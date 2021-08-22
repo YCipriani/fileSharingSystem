@@ -156,3 +156,144 @@ Traceback (most recent call last):
     raise ConfigurationError(str(exc))
 pymongo.errors.ConfigurationError: The DNS operation timed out after 20.00409483909607 seconds
 INFO:werkzeug:127.0.0.1 - - [19/Aug/2021 19:51:15] "[35m[1mPOST /send_request?request_type=Tx&file_name=s.txt&file_location=S HTTP/1.1[0m" 500 -
+INFO:root: 2021-08-22 11:55:17 All credentials have been retrieved
+INFO:root: 2021-08-22 11:55:54 Login Successful
+INFO:root: 2021-08-22 11:56:53 All credentials have been retrieved
+INFO:root: 2021-08-22 11:57:07 Login Successful
+INFO:werkzeug: * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+INFO:root: 2021-08-22 11:57:27 Service Started
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 11:57:32] "POST /send_request?request_type=Rx&file_name=s.txt&file_location=S HTTP/1.1" 200 -
+INFO:root: 2021-08-22 11:57:32 File s.txt was found in collection S.
+INFO:root: 2021-08-22 11:58:20 All credentials have been retrieved
+INFO:root: 2021-08-22 11:58:36 Login Successful
+INFO:root: 2021-08-22 11:58:52 All credentials have been retrieved
+INFO:root: 2021-08-22 11:59:03 Login Successful
+INFO:root: 2021-08-22 11:59:21 All credentials have been retrieved
+INFO:root: 2021-08-22 11:59:35 Login Successful
+INFO:werkzeug: * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+INFO:root: 2021-08-22 12:00:32 Service Started
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 12:00:36] "POST /send_request?request_type=Rx&file_name=s.txt&file_location=S HTTP/1.1" 200 -
+INFO:root: 2021-08-22 12:00:36 File s.txt was found in collection S.
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 12:00:39] "POST /send_request?request_type=Rx&file_name=s.txt&file_location=S HTTP/1.1" 200 -
+INFO:root: 2021-08-22 12:00:39 File s.txt was found in collection S.
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 12:00:42] "POST /send_request?request_type=Rx&file_name=s.txt&file_location=S HTTP/1.1" 200 -
+INFO:root: 2021-08-22 12:00:42 File s.txt was found in collection S.
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 12:00:46] "POST /send_request?request_type=Rx&file_name=s.txt&file_location=S HTTP/1.1" 200 -
+INFO:root: 2021-08-22 12:00:46 File s.txt was found in collection S.
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 12:00:49] "POST /send_request?request_type=Rx&file_name=s.txt&file_location=S HTTP/1.1" 200 -
+INFO:root: 2021-08-22 12:00:49 File s.txt was found in collection S.
+INFO:root: 2021-08-22 12:05:28 All credentials have been retrieved
+INFO:root: 2021-08-22 12:05:52 Login Successful
+INFO:root: 2021-08-22 12:46:54 All credentials have been retrieved
+INFO:root: 2021-08-22 12:47:05 All credentials have been retrieved
+INFO:root: 2021-08-22 12:47:25 Login Successful
+INFO:werkzeug: * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+INFO:root: 2021-08-22 12:47:45 Service Started
+INFO:root: 2021-08-22 12:47:49 Dummy file 1145477_2021-08-22_12:47:49_.txt was stored in collectionS.
+INFO:root: 2021-08-22 12:47:50 File she.txt was stored in collection S.
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 12:47:50] "POST /send_request?request_type=Tx&file_name=she.txt&file_location=S HTTP/1.1" 200 -
+INFO:root: 2021-08-22 12:49:33 All credentials have been retrieved
+ERROR:root: 2021-08-22 12:49:49 Password not recognized
+INFO:root: 2021-08-22 12:49:53 Login Successful
+INFO:root: 2021-08-22 12:51:45 All credentials have been retrieved
+INFO:root: 2021-08-22 12:52:01 Login Successful
+INFO:werkzeug: * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+INFO:root: 2021-08-22 12:52:14 Service Started
+INFO:root: 2021-08-22 12:52:18 Dummy file 2691935_2021-08-22_12:52:18_.txt was stored in collectionS.
+ERROR:root: 2021-08-22 12:52:18 File she.txt already exists in collection S.
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 12:52:18] "POST /send_request?request_type=Tx&file_name=she.txt&file_location=S HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 12:52:45] "GET /shutdown HTTP/1.1" 200 -
+INFO:root: 2021-08-22 12:52:47 Service has stopped
+INFO:root: 2021-08-22 12:56:01 All credentials have been retrieved
+INFO:root: 2021-08-22 12:56:26 All credentials have been retrieved
+INFO:root: 2021-08-22 12:56:40 Login Successful
+INFO:werkzeug: * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+INFO:root: 2021-08-22 12:56:45 Service Started
+INFO:root: 2021-08-22 12:56:49 Dummy file 8549528_2021-08-22_12:56:49_.txt was stored in collectionS.
+ERROR:root: 2021-08-22 12:56:49 File s.txt already exists in collection S.
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 12:56:49] "POST /send_request?request_type=Tx&file_name=s.txt&file_location=S HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 12:56:52] "GET /shutdown HTTP/1.1" 200 -
+INFO:root: 2021-08-22 12:56:53 Service has stopped
+INFO:root: 2021-08-22 12:57:33 All credentials have been retrieved
+INFO:root: 2021-08-22 12:57:50 Login Successful
+INFO:werkzeug: * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+INFO:root: 2021-08-22 12:58:02 Service Started
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 12:58:04] "GET /shutdown HTTP/1.1" 200 -
+INFO:root: 2021-08-22 12:58:05 Dummy file 5598941_2021-08-22_12:58:05_.txt was stored in collectionS.
+ERROR:root: 2021-08-22 12:58:06 File she.txt already exists in collection S.
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 12:58:06] "POST /send_request?request_type=Tx&file_name=she.txt&file_location=S HTTP/1.1" 200 -
+INFO:root: 2021-08-22 12:58:13 Service has stopped
+INFO:root: 2021-08-22 12:58:27 All credentials have been retrieved
+INFO:root: 2021-08-22 12:58:40 Login Successful
+INFO:werkzeug: * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+INFO:root: 2021-08-22 12:59:02 Service Started
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 12:59:04] "GET /shutdown HTTP/1.1" 200 -
+INFO:root: 2021-08-22 12:59:05 Service has stopped
+INFO:root: 2021-08-22 12:59:06 Dummy file 3163860_2021-08-22_12:59:06_.txt was stored in collectionS.
+ERROR:root: 2021-08-22 12:59:06 File she.txt already exists in collection S.
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 12:59:06] "POST /send_request?request_type=Tx&file_name=she.txt&file_location=S HTTP/1.1" 200 -
+INFO:root: 2021-08-22 13:00:04 All credentials have been retrieved
+INFO:root: 2021-08-22 13:00:16 Login Successful
+INFO:werkzeug: * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+INFO:root: 2021-08-22 13:00:23 Service Started
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 13:00:26] "GET /shutdown HTTP/1.1" 200 -
+INFO:root: 2021-08-22 13:00:27 Service has stopped
+INFO:root: 2021-08-22 13:00:27 Dummy file 3467124_2021-08-22_13:00:27_.txt was stored in collectionS.
+ERROR:root: 2021-08-22 13:00:27 File she.txt already exists in collection S.
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 13:00:27] "POST /send_request?request_type=Tx&file_name=she.txt&file_location=S HTTP/1.1" 200 -
+INFO:root: 2021-08-22 13:01:22 All credentials have been retrieved
+INFO:root: 2021-08-22 13:01:36 Login Successful
+INFO:root:Number of checks made: 0
+INFO:root: 2021-08-22 13:01:56 All credentials have been retrieved
+INFO:root: 2021-08-22 13:02:13 Login Successful
+INFO:werkzeug: * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+INFO:root: 2021-08-22 13:02:18 Service Started
+INFO:root: 2021-08-22 13:02:31 Dummy file 7708660_2021-08-22_13:02:31_.txt was stored in collectionS.
+ERROR:root: 2021-08-22 13:02:31 File she.txt already exists in collection S.
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 13:02:31] "POST /send_request?request_type=Tx&file_name=she.txt&file_location=S HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 13:02:53] "GET /shutdown HTTP/1.1" 200 -
+INFO:root: 2021-08-22 13:02:55 Dummy file 6871822_2021-08-22_13:02:55_.txt was stored in collectionS.
+INFO:root: 2021-08-22 13:02:55 Service has stopped
+ERROR:root: 2021-08-22 13:02:55 File she.txt already exists in collection S.
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 13:02:55] "POST /send_request?request_type=Tx&file_name=she.txt&file_location=S HTTP/1.1" 200 -
+INFO:root: 2021-08-22 13:03:45 All credentials have been retrieved
+INFO:root: 2021-08-22 13:04:00 Login Successful
+INFO:root: 2021-08-22 13:04:55 All credentials have been retrieved
+INFO:root: 2021-08-22 13:05:02 All credentials have been retrieved
+INFO:root: 2021-08-22 13:05:11 All credentials have been retrieved
+INFO:root: 2021-08-22 13:05:23 Login Successful
+INFO:werkzeug: * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+INFO:root: 2021-08-22 13:05:30 Service Started
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 13:05:34] "GET /shutdown HTTP/1.1" 200 -
+INFO:root: 2021-08-22 13:05:34 Dummy file 8363876_2021-08-22_13:05:34_.txt was stored in collectionS.
+ERROR:root: 2021-08-22 13:05:34 File she.txt already exists in collection S.
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 13:05:34] "POST /send_request?request_type=Tx&file_name=she.txt&file_location=S HTTP/1.1" 200 -
+INFO:root: 2021-08-22 13:05:35 Service has stopped
+INFO:werkzeug: * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+INFO:root: 2021-08-22 13:05:43 Service Started
+INFO:root: 2021-08-22 13:05:46 Dummy file 5390241_2021-08-22_13:05:46_.txt was stored in collectionS.
+ERROR:root: 2021-08-22 13:05:46 File she.txt already exists in collection S.
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 13:05:46] "POST /send_request?request_type=Tx&file_name=she.txt&file_location=S HTTP/1.1" 200 -
+INFO:root: 2021-08-22 13:05:47 Dummy file 4451872_2021-08-22_13:05:47_.txt was stored in collectionS.
+ERROR:root: 2021-08-22 13:05:48 File she.txt already exists in collection S.
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 13:05:48] "POST /send_request?request_type=Tx&file_name=she.txt&file_location=S HTTP/1.1" 200 -
+INFO:root: 2021-08-22 13:06:00 Dummy file 2413110_2021-08-22_13:06:00_.txt was stored in collectionS.
+ERROR:root: 2021-08-22 13:06:00 File she.txt already exists in collection S.
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 13:06:00] "POST /send_request?request_type=Tx&file_name=she.txt&file_location=S HTTP/1.1" 200 -
+INFO:root: 2021-08-22 13:06:01 Dummy file 2424337_2021-08-22_13:06:01_.txt was stored in collectionS.
+ERROR:root: 2021-08-22 13:06:01 File she.txt already exists in collection S.
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 13:06:01] "POST /send_request?request_type=Tx&file_name=she.txt&file_location=S HTTP/1.1" 200 -
+INFO:root: 2021-08-22 13:06:13 Dummy file 7860266_2021-08-22_13:06:13_.txt was stored in collectionS.
+ERROR:root: 2021-08-22 13:06:14 File she.txt already exists in collection S.
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 13:06:14] "POST /send_request?request_type=Tx&file_name=she.txt&file_location=S HTTP/1.1" 200 -
+INFO:root: 2021-08-22 13:06:14 Dummy file 2031273_2021-08-22_13:06:14_.txt was stored in collectionS.
+ERROR:root: 2021-08-22 13:06:14 File she.txt already exists in collection S.
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 13:06:14] "POST /send_request?request_type=Tx&file_name=she.txt&file_location=S HTTP/1.1" 200 -
+INFO:root: 2021-08-22 13:06:27 Dummy file 282299_2021-08-22_13:06:26_.txt was stored in collectionS.
+ERROR:root: 2021-08-22 13:06:27 File she.txt already exists in collection S.
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 13:06:27] "POST /send_request?request_type=Tx&file_name=she.txt&file_location=S HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 13:06:27] "GET /shutdown HTTP/1.1" 200 -
+INFO:root: 2021-08-22 13:06:28 Dummy file 7703840_2021-08-22_13:06:28_.txt was stored in collectionS.
+ERROR:root: 2021-08-22 13:06:28 File she.txt already exists in collection S.
+INFO:werkzeug:127.0.0.1 - - [22/Aug/2021 13:06:28] "POST /send_request?request_type=Tx&file_name=she.txt&file_location=S HTTP/1.1" 200 -
+INFO:root: 2021-08-22 13:06:29 Service has stopped

@@ -16,7 +16,7 @@ from filesharing.app import start_app, new_request
 from tkinter import messagebox
 
 from filesharing.utils.current_time import get_current_date_and_time, get_seconds_diff, \
-    write_service_started_time_to_file
+    write_service_started_time_to_file, write_number_of_checks_made, number_of_checks_made, service_started_time
 from filesharing.utils.port import read_port_from_file
 
 lock = threading.Lock()
@@ -106,8 +106,8 @@ def user_menu(my_request):
     if my_request.request_type == "Rx":
         Button(
             user_menu_screen,
-            text="Show Number of Checks Left",
-            command=show_number_of_checks_left,
+            text="Show Number of Checks Made",
+            command=show_number_of_checks_made,
         ).pack()
     Button(
         user_menu_screen,
@@ -129,7 +129,14 @@ def start_service(my_request):
 
 
 def stop_service():
-    requests.get("http://127.0.0.1:5000/shutdown")
+    try:
+        requests.get("http://127.0.0.1:5000/shutdown")
+    except:
+        print("Connection max Retries")
+    now = datetime.datetime.now()  # current date and time
+    end = now.strftime("%Y-%m-%d %H:%M:%S")
+    date1_obj = datetime.datetime.strptime(end, '%Y-%m-%d %H:%M:%S')
+    write_service_started_time_to_file(date1_obj.strftime('%Y-%m-%d %H:%M:%S'), 0)
     messagebox.showinfo("SUCCESS", "Service has stopped")
     log.info(get_current_date_and_time() + "Service has stopped")
 
@@ -163,6 +170,7 @@ def send_rx_request(request_string, my_request):
                 + my_request.file_location
                 + "."
             )
+        write_number_of_checks_made(k)
 
 
 def send_request(my_request):
@@ -180,7 +188,7 @@ def send_request(my_request):
         now = datetime.datetime.now()  # current date and time
         end = now.strftime("%Y-%m-%d %H:%M:%S")
         date1_obj = datetime.datetime.strptime(end, '%Y-%m-%d %H:%M:%S')
-        write_service_started_time_to_file(date1_obj.strftime('%Y-%m-%d %H:%M:%S'))
+        write_service_started_time_to_file(date1_obj.strftime('%Y-%m-%d %H:%M:%S'), 1)
         if my_request.request_type == "Tx":
             thread1 = Thread(
                 target=send_tx_request, args=(request_string, my_request.time)
@@ -195,12 +203,22 @@ def send_request(my_request):
 
 
 def show_time(my_request):
-    d = get_seconds_diff(my_request.time)
-    messagebox.showinfo("TIME LEFT UNTIL NEXT REQUEST", str(d) + " Seconds")
+    d = service_started_time()
+    if d["started"]:
+        sec = get_seconds_diff(my_request.time)
+        messagebox.showinfo("TIME LEFT UNTIL NEXT REQUEST", str(sec) + " Seconds")
+    else:
+        messagebox.showerror("ERROR", "NO TIME LEFT SINCE SERVICE HAS NOT BEEN STARTED")
 
 
-def show_number_of_checks_left():
-    pass
+def show_number_of_checks_made():
+    n = number_of_checks_made()
+    if n:
+        messagebox.showinfo("NUMBER OF CHECKS MADE", str(n))
+        log.info("Number of checks made: " + str(n))
+    else:
+        messagebox.showerror("ERROR", "NO CHECKS MADE. MAKE SURE YOU START THE SERVICE")
+        log.info("No checks made yet.")
 
 
 def exit_program():
