@@ -8,27 +8,51 @@ from filesharing.utils.current_time import get_current_date_and_time
 import syslog
 from pysnmp.hlapi import *
 
+log = get_logger()
 
-def send_email(
-        request_type: str, file_name: str, file_location: str, send_to_email: str
-):
-    log = get_logger()
+
+def create_email_body(my_request, start):
+    if start:
+        return (
+            "Dear Sir/Madam, \n\n"
+            + "A "
+            + my_request.request_type
+            + " request has been initiated for the file: "
+            + my_request.file_name_and_extension
+            + " to be stored in table/collection "
+            + my_request.file_location
+            + ".\n\n"
+        )
+    else:
+        return (
+            "Dear Sir/Madam, \n\n"
+            + "The "
+            + my_request.request_type
+            + " request has been processed. File "
+            + my_request.file_name_and_extension
+            + " has been stored in table/collection "
+            + my_request.file_location
+            + ".\n\n"
+        )
+
+
+def send_email(my_request, send_to_email: str, start: bool):
     gmail_user = "1thesoftwareengineer1@gmail.com"
     gmail_password = "1developer1"
 
     sent_from = gmail_user
     to = [send_to_email]
-    subject = request_type + ": " + file_name + " is being processed"
-    body = (
-            "Dear Sir/Madam, \n\n"
-            + "A "
-            + request_type
-            + " request has been initiated for the file: "
-            + file_name
-            + " to be stored in "
-            + file_location
-            + " table/collection.\n\n"
-    )
+    if start:
+        body = create_email_body(my_request, True)
+        subject = (
+            my_request.request_type
+            + ": "
+            + my_request.file_name_and_extension
+            + " is being processed"
+        )
+    else:
+        body = create_email_body(my_request, False)
+        subject = my_request.request_type + " request has completed"
     message = "Subject: {}\n\n{}".format(subject, body)
 
     try:
@@ -42,36 +66,44 @@ def send_email(
         log.error(get_current_date_and_time() + "Something went wrong. Email not sent")
 
 
-def log_syslog(message, info):
+def log_syslog(message, info=True):
     if info:
         syslog.syslog(syslog.LOG_INFO, message)
     else:
         syslog.syslog(syslog.LOG_ERR, message)
 
 
-def cbFun(snmpEngine, stateReference, contextEngineId, contextName,
-          varBinds, cbCtx):
-    print("Received new Trap message");
+def cbFun(snmpEngine, stateReference, contextEngineId, contextName, varBinds, cbCtx):
+    log.info(get_current_date_and_time() + "Received new Trap message")
     for name, val in varBinds:
-        print('%s = %s' % (name.prettyPrint(), val.prettyPrint()))
+        log.info("%s = %s" % (name.prettyPrint(), val.prettyPrint()))
+        print("%s = %s" % (name.prettyPrint(), val.prettyPrint()))
 
 
 def start_snmp_trap_receiver():
     snmpEngine = engine.SnmpEngine()
 
-    TrapAgentAddress = '192.168.1.14'  # Trap listener address
-    Port = 163  # trap listener port
+    TrapAgentAddress = "192.168.1.14"  # Trap listener address
+    port = 163  # trap listener port
 
-    print("Agent is listening SNMP Trap on " + TrapAgentAddress + " , Port : " + str(Port))
-    print('--------------------------------------------------------------------------')
+    log.info(
+        get_current_date_and_time()
+        + "Agent is listening SNMP Trap on "
+        + TrapAgentAddress
+        + " , Port : "
+        + str(port)
+    )
+    log.info(
+        "--------------------------------------------------------------------------"
+    )
     config.addTransport(
         snmpEngine,
         udp.domainName + (1,),
-        udp.UdpTransport().openServerMode(('0.0.0.0', Port))
+        udp.UdpTransport().openServerMode(("0.0.0.0", port)),
     )
 
     # Configure community here
-    config.addV1System(snmpEngine, 'my-area', 'public')
+    config.addV1System(snmpEngine, "my-area", "public")
     ntfrcv.NotificationReceiver(snmpEngine, cbFun)
 
     snmpEngine.transportDispatcher.jobStarted(1)
@@ -84,10 +116,14 @@ def start_snmp_trap_receiver():
 
 
 def send_snmp_trap(message):
-    next(sendNotification(SnmpEngine(),
-                          CommunityData('public'),
-                          UdpTransportTarget(('192.168.1.14', 163)),
-                          ContextData(),
-                          'trap',
-                          # sequence of custom OID-value pairs
-                          [ObjectType(ObjectIdentity('1.3.6.1.2.1.1.1.0'), OctetString(message))]))
+    log.info(get_current_date_and_time() + "New Trap message Sent")
+    next(
+        sendNotification(
+            SnmpEngine(),
+            CommunityData("public"),
+            UdpTransportTarget(("192.168.1.14", 163)),
+            ContextData(),
+            "trap",
+            [ObjectType(ObjectIdentity("1.3.6.1.2.1.1.1.0"), OctetString(message))],
+        )
+    )

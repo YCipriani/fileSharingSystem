@@ -4,7 +4,9 @@ from random import randint
 
 
 def service_started_time():
-    with open('/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/resources/service_started_time.json') as f:
+    with open(
+        "/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/resources/service_started_time.json"
+    ) as f:
         return json.load(f)
 
 
@@ -13,9 +15,11 @@ def write_service_started_time_to_file(time, flag):
         jsonData = {"started": True, "started_time": time}
     else:
         jsonData = {"started": False, "started_time": time}
-    with open("/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/resources/service_started_time.json", 'w') as outfile:
-        json.dump(jsonData, outfile, sort_keys=True, indent=4,
-                  ensure_ascii=False)
+    with open(
+        "/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/resources/service_started_time.json",
+        "w",
+    ) as outfile:
+        json.dump(jsonData, outfile, sort_keys=True, indent=4, ensure_ascii=False)
 
 
 def get_seconds_diff(time_interval):
@@ -24,8 +28,8 @@ def get_seconds_diff(time_interval):
     now = datetime.datetime.now()  # current date and time
     end = now.strftime("%Y-%m-%d %H:%M:%S")
 
-    date1_obj = datetime.datetime.strptime(end, '%Y-%m-%d %H:%M:%S')
-    date2_obj = datetime.datetime.strptime(start, '%Y-%m-%d %H:%M:%S')
+    date1_obj = datetime.datetime.strptime(end, "%Y-%m-%d %H:%M:%S")
+    date2_obj = datetime.datetime.strptime(start, "%Y-%m-%d %H:%M:%S")
 
     difference_seconds = abs((date1_obj - date2_obj).seconds)
     return time_interval - (difference_seconds % time_interval)

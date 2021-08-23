@@ -1,6 +1,7 @@
 import socket
 from contextlib import closing
 
+
 def read_port_from_file():
     file = open(
         "/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/resources/port.txt",

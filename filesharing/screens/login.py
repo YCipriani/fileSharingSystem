@@ -9,14 +9,26 @@ import tkinter as tk
 
 import requests
 
-from filesharing.common.globals import credentials
+from filesharing.common.globals import credentials, admin_email
 from filesharing.common.logger import get_logger
 from filesharing.app import start_app, new_request
 
 from tkinter import messagebox
 
-from filesharing.utils.current_time import get_current_date_and_time, get_seconds_diff, \
-    write_service_started_time_to_file, write_number_of_checks_made, number_of_checks_made, service_started_time
+from filesharing.utils.current_time import (
+    get_current_date_and_time,
+    get_seconds_diff,
+    write_service_started_time_to_file,
+    write_number_of_checks_made,
+    number_of_checks_made,
+    service_started_time,
+)
+from filesharing.utils.notifications import (
+    send_email,
+    log_syslog,
+    start_snmp_trap_receiver,
+    send_snmp_trap,
+)
 from filesharing.utils.port import read_port_from_file
 
 lock = threading.Lock()
@@ -114,7 +126,9 @@ def user_menu(my_request):
         text="Start Service",
         command=lambda: start_service(my_request),
     ).pack()
-    Button(user_menu_screen, text="Stop Service", command=stop_service).pack()
+    Button(
+        user_menu_screen, text="Stop Service", command=lambda: stop_service(my_request)
+    ).pack()
     Button(user_menu_screen, text="Show Logs", command=show_logs).pack()
     Button(user_menu_screen, text="Clear Logs", command=clear_logs).pack()
 
@@ -123,56 +137,66 @@ def start_service(my_request):
     thread = Thread(target=start_app)
     thread.daemon = True
     thread.start()
-    messagebox.showinfo("SUCCESS", "Service has started")
-    log.info(get_current_date_and_time() + "Service Started")
+    send_email(my_request, admin_email, True)
+    start_message = "Service has started"
+    if my_request.request_type == "Rx":
+        log_syslog(start_message)
+        th = Thread(target=start_snmp_trap_receiver)
+        th.start()
+        send_snmp_trap(start_message)
+    messagebox.showinfo("SUCCESS", start_message)
+    log.info(get_current_date_and_time() + start_message)
     send_request(my_request)
 
 
-def stop_service():
+def stop_service(my_request):
     try:
         requests.get("http://127.0.0.1:5000/shutdown")
     except:
         print("Connection max Retries")
     finally:
+        send_email(my_request, admin_email, False)
         now = datetime.datetime.now()  # current date and time
         end = now.strftime("%Y-%m-%d %H:%M:%S")
-        date1_obj = datetime.datetime.strptime(end, '%Y-%m-%d %H:%M:%S')
-        write_service_started_time_to_file(date1_obj.strftime('%Y-%m-%d %H:%M:%S'), 0)
+        date1_obj = datetime.datetime.strptime(end, "%Y-%m-%d %H:%M:%S")
+        write_service_started_time_to_file(date1_obj.strftime("%Y-%m-%d %H:%M:%S"), 0)
         write_number_of_checks_made(0)
     messagebox.showinfo("SUCCESS", "Service has stopped")
     log.info(get_current_date_and_time() + "Service has stopped")
 
 
-def send_tx_request(request_string, time_interval):
+def send_tx_request(request_string, my_request):
     while True:
         requests.post(request_string)
-        time.sleep(time_interval)
+        time.sleep(my_request.time)
 
 
 def send_rx_request(request_string, my_request):
+    message = None
+    k = None
     for i in range(my_request.number_of_checks):
         k = i + 1
         if requests.post(request_string):
-            print("Round " + str(k) + ": File Found")
-            log.info(
+            message = (
                 get_current_date_and_time()
                 + "File "
                 + my_request.file_name_and_extension
                 + " was found in collection "
                 + my_request.file_location
-                + "."
             )
+            log.info(message + " (Check #" + str(k) + ")")
         else:
-            print("Round " + str(k) + ": File Not Found")
-            log.info(
+            message = (
                 get_current_date_and_time()
                 + "File "
                 + my_request.file_name_and_extension
                 + " was NOT found in collection "
                 + my_request.file_location
-                + "."
             )
+            log.info(message + " (Check #" + str(k) + ")")
         write_number_of_checks_made(k)
+    log_syslog(message + " " + str(k) + " times.")
+    send_snmp_trap(message + " " + str(k) + " times.")
 
 
 def send_request(my_request):
@@ -189,16 +213,13 @@ def send_request(my_request):
     with lock:
         now = datetime.datetime.now()  # current date and time
         end = now.strftime("%Y-%m-%d %H:%M:%S")
-        date1_obj = datetime.datetime.strptime(end, '%Y-%m-%d %H:%M:%S')
-        write_service_started_time_to_file(date1_obj.strftime('%Y-%m-%d %H:%M:%S'), 1)
+        date1_obj = datetime.datetime.strptime(end, "%Y-%m-%d %H:%M:%S")
+        write_service_started_time_to_file(date1_obj.strftime("%Y-%m-%d %H:%M:%S"), 1)
         if my_request.request_type == "Tx":
-            thread1 = Thread(
-                target=send_tx_request, args=(request_string, my_request.time)
-            )
+            thread1 = Thread(target=send_tx_request, args=(request_string, my_request))
             thread1.daemon = True
             thread1.start()
         if my_request.request_type == "Rx":
-            # send_rx_request(request_string, my_request)
             thread1 = Thread(target=send_rx_request, args=(request_string, my_request))
             thread1.daemon = True
             thread1.start()
@@ -217,10 +238,10 @@ def show_number_of_checks_made():
     n = number_of_checks_made()
     if n:
         messagebox.showinfo("NUMBER OF CHECKS MADE", str(n))
-        log.info("Number of checks made: " + str(n))
+        log.info(get_current_date_and_time() + "Number of checks made: " + str(n))
     else:
         messagebox.showerror("ERROR", "NO CHECKS MADE. MAKE SURE YOU START THE SERVICE")
-        log.info("No checks made yet.")
+        log.info(get_current_date_and_time() + "No checks made yet.")
 
 
 def show_logs():

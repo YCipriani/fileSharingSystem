@@ -7,17 +7,23 @@ from flask import Flask, make_response, request
 from flask_restful import Api
 from filesharing.db.mongodbDAL import mongodbDAL
 from filesharing.screens import login
-from filesharing.utils.current_time import get_current_date_and_time, create_dummy_file, get_seconds_diff
-from filesharing.utils.notifications import send_email
+from filesharing.utils.current_time import (
+    get_current_date_and_time,
+    create_dummy_file,
+    get_seconds_diff,
+)
 from filesharing.domains.request import Request
 from filesharing.common.logger import get_logger
-from filesharing.utils.port import write_port_to_file, read_port_from_file, find_free_port
+from filesharing.utils.port import (
+    write_port_to_file,
+    read_port_from_file,
+    find_free_port,
+)
 
 flask_app = Flask(__name__)
 flask_app.use_reloader = False
 
 api = Api(flask_app)
-admin_email = "yonatancipriani@outlook.com"
 
 
 @flask_app.route("/", methods=["GET"])
@@ -177,7 +183,11 @@ def new_request():
     except:
         new_port = find_free_port()
         write_port_to_file(new_port)
-        log.info("New server starting at port number: " + str(new_port))
+        log.info(
+            get_current_date_and_time()
+            + "New server starting at port number: "
+            + str(new_port)
+        )
         start_app(port=new_port)
     return "Restarted the Service on Port " + str(port)
 
@@ -214,13 +224,12 @@ def main():
     file_location = input("Enter the file location:\t")
     if int(request_type) == 1:
         time_interval = input("Enter the time interval between requests in seconds:\t")
-        request_test = Request(
+        request = Request(
             request_type="Tx",
             file_name_and_extension=file_name_and_extension,
             file_location=file_location,
             time=int(time_interval),
         )
-        # send_email("Tx", file_name_and_extension, file_location, admin_email)
     elif int(request_type) == 0:
         n = 0
         while True:
@@ -242,13 +251,12 @@ def main():
                 else:
                     exit(0)
 
-        request_test = Request(
+        request = Request(
             request_type="Rx",
             file_name_and_extension=file_name_and_extension,
             file_location=file_location,
             number_of_checks=n,
         )
-        # send_email("Rx", file_name_and_extension, file_location, admin_email)
     else:
         log.error(
             get_current_date_and_time()
@@ -256,7 +264,7 @@ def main():
         )
         return "Only Tx (press 1) and Rx (press 0) requests are allowed"
 
-    login.login(request_test)
+    login.login(request)
 
 
 if __name__ == "__main__":
