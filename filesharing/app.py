@@ -10,23 +10,14 @@ from filesharing.screens import login
 from filesharing.utils.current_time import get_current_date_and_time, create_dummy_file, get_seconds_diff
 from filesharing.utils.notifications import send_email
 from filesharing.domains.request import Request
-import socket
-from contextlib import closing
 from filesharing.common.logger import get_logger
-from filesharing.utils.port import write_port_to_file, read_port_from_file
+from filesharing.utils.port import write_port_to_file, read_port_from_file, find_free_port
 
 flask_app = Flask(__name__)
 flask_app.use_reloader = False
 
 api = Api(flask_app)
 admin_email = "yonatancipriani@outlook.com"
-
-
-def find_free_port():
-    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
-        s.bind(("", 0))
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        return s.getsockname()[1]
 
 
 @flask_app.route("/", methods=["GET"])
