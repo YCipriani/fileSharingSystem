@@ -77,7 +77,6 @@ def cbFun(snmpEngine, stateReference, contextEngineId, contextName, varBinds, cb
     log.info(get_current_date_and_time() + "Received new Trap message")
     for name, val in varBinds:
         log.info("%s = %s" % (name.prettyPrint(), val.prettyPrint()))
-        print("%s = %s" % (name.prettyPrint(), val.prettyPrint()))
 
 
 def start_snmp_trap_receiver():

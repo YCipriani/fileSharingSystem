@@ -155,7 +155,8 @@ def stop_service(my_request):
     except:
         print("Connection max Retries")
     finally:
-        send_email(my_request, admin_email, False)
+        if my_request.request_type == "Tx":
+            send_email(my_request, admin_email, False)
         now = datetime.datetime.now()  # current date and time
         end = now.strftime("%Y-%m-%d %H:%M:%S")
         date1_obj = datetime.datetime.strptime(end, "%Y-%m-%d %H:%M:%S")
@@ -195,8 +196,9 @@ def send_rx_request(request_string, my_request):
             )
             log.info(message + " (Check #" + str(k) + ")")
         write_number_of_checks_made(k)
-    log_syslog(message + " " + str(k) + " times.")
+    log_syslog(message + ", " + str(k) + " times.")
     send_snmp_trap(message + " " + str(k) + " times.")
+    send_email(my_request, admin_email, False)
 
 
 def send_request(my_request):
