@@ -22,3 +22,10 @@ class mongodbDAL:
                 if file_name == item["file_name"]:
                     return True
         return False
+
+    def move_file(self, file_name, old_location, new_location):
+        if self.find_file_by_collection(file_name, old_location):
+            old_collection = self.db.get_collection(old_location)
+            old_collection.delete_one({'file_name': file_name})
+            new_collection = self.db.get_collection(new_location)
+            new_collection.insert_one({'file_name': file_name, 'file_location': new_location})

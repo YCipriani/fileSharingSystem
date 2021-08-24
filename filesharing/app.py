@@ -14,11 +14,13 @@ from filesharing.utils.current_time import (
 )
 from filesharing.domains.request import Request
 from filesharing.common.logger import get_logger
+from filesharing.utils.notifications import send_email
 from filesharing.utils.port import (
     write_port_to_file,
     read_port_from_file,
     find_free_port,
 )
+from filesharing.common.globals import admin_email
 
 flask_app = Flask(__name__)
 flask_app.use_reloader = False
@@ -29,6 +31,29 @@ api = Api(flask_app)
 @flask_app.route("/", methods=["GET"])
 def home():
     return """<h1>Service is Running</h1>"""
+
+
+@flask_app.route("/move_file", methods=["POST"])
+def move_file():
+    if len(request.args.to_dict()) == 3:
+        file_name = request.args.get("file_name")
+        old_location = request.args.get("old_location")
+        new_location = request.args.get("new_location")
+        try:
+            tx_dal = mongodbDAL("Tx")
+            rx_dal = mongodbDAL("Rx")
+            tx_dal.move_file(file_name, old_location, new_location)
+            rx_dal.move_file(file_name, old_location, new_location)
+            return "File " + file_name + " was moved from collection " + old_location + " to collection " + new_location
+        except:
+            return "Could not preform operation. Make sure file is in the old location specified"
+    return "Not enough parameters were passed"
+
+
+@flask_app.route("/clear_logs", methods=["POST"])
+def clear_logs():
+    open("/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/logs/demo.log", "w").close()
+    return "Logs have been cleared"
 
 
 @flask_app.route("/send_request", methods=["POST"])
@@ -64,7 +89,7 @@ def send_request():
             get_current_date_and_time()
             + "Dummy file "
             + dummy_file["file_name"]
-            + " was stored in collection"
+            + " was stored in collection "
             + dummy_file["file_location"]
             + "."
         )
@@ -92,7 +117,7 @@ def send_request():
     if request_type == "Rx":
         tx_dal = mongodbDAL("Tx")
         if dal.find_file_by_collection(
-            file_name, file_location
+                file_name, file_location
         ) and tx_dal.find_file_by_collection(file_name, file_location):
             return "SUCCESS"
         else:
@@ -105,6 +130,52 @@ def send_request():
                 + "."
             )
             return "File " + file_name + " was NOT found in collection " + file_location + "."
+
+
+@flask_app.route("/send_rx_request", methods=["POST"])
+def send_the_rx_request():
+    log = get_logger()
+    if len(request.args.to_dict()) == 3:
+        file_name = request.args.get("file_name")
+        file_location = request.args.get("file_location")
+        number_of_checks = request.args.get("number_of_checks")
+    else:
+        if len(request.json) == 3:
+            number_of_checks = request.json["number_of_checks"]
+            file_name = request.json["file_name"]
+            file_location = request.json["file_location"]
+        else:
+            log.error(
+                "Not all of the arguments were provided (request_type, file_name, file_location)"
+            )
+            return "Not all of the arguments were provided (request_type, file_name, file_location)"
+    tx_dal = mongodbDAL("Tx")
+    rx_dal = mongodbDAL("Rx")
+    count = 0
+    try:
+        n = int(number_of_checks)
+    except:
+        log.error(get_current_date_and_time() + "ERROR: number_of_checks is not a number")
+        return "ERROR: number_of_checks is not a number"
+    my_request = Request(
+        request_type="Rx",
+        file_name_and_extension=file_name,
+        file_location=file_location,
+        number_of_checks=n,
+    )
+    send_email(my_request, admin_email, True)
+    for i in range(n):
+        if rx_dal.find_file_by_collection(
+                file_name, file_location
+        ) and tx_dal.find_file_by_collection(file_name, file_location):
+            count += 1
+    send_email(my_request, admin_email, False)
+    if n != count:
+        log.info(get_current_date_and_time() + "File " + file_name + " was NOT found in collection " + file_location + ".")
+        return "File " + file_name + " was NOT found in collection " + file_location + "."
+    else:
+        log.error(get_current_date_and_time() + "File " + file_name + " was found in collection " + file_location + " " + number_of_checks + " times.")
+        return "File " + file_name + " was found in collection " + file_location + " " + number_of_checks + " times."
 
 
 @flask_app.route("/send_tx_request", methods=["POST"])

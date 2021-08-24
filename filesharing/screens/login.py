@@ -158,6 +158,7 @@ def start_service(my_request):
     if my_request.request_type == "Rx":
         log_syslog(start_message)
         th = Thread(target=start_snmp_trap_receiver)
+        th.daemon = True
         th.start()
         send_snmp_trap(start_message)
     messagebox.showinfo("SUCCESS", start_message)
@@ -187,7 +188,6 @@ def send_tx_request(request_string, my_request):
 def send_rx_request(request_string, my_request):
     message = None
     k = None
-    found = False
     for i in range(my_request.number_of_checks):
         k = i + 1
         if requests.post(request_string) == 'SUCCESS':

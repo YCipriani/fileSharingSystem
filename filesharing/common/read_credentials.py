@@ -10,7 +10,6 @@ def get_all_credentials():
     )
     data = json.load(f)
     if data:
-        log.info(get_current_date_and_time() + "All credentials have been retrieved")
         return data
     else:
         log.info(get_current_date_and_time() + "No credentials found")
