@@ -79,7 +79,7 @@ def send_request():
                 + file_location
                 + "."
             )
-            return json.loads(json_util.dumps(file))
+            return "SUCCESS"
         log.error(
             get_current_date_and_time()
             + "File "
@@ -94,10 +94,7 @@ def send_request():
         if dal.find_file_by_collection(
             file_name, file_location
         ) and tx_dal.find_file_by_collection(file_name, file_location):
-            print("File " + file_name + " was found")
-            return (
-                "File " + file_name + " was found in collection " + file_location + "."
-            )
+            return "SUCCESS"
         else:
             log.error(
                 get_current_date_and_time()
@@ -107,14 +104,7 @@ def send_request():
                 + file_location
                 + "."
             )
-            print(
-                "File "
-                + file_name
-                + " was NOT found in collection "
-                + file_location
-                + "."
-            )
-            return None
+            return "File " + file_name + " was NOT found in collection " + file_location + "."
 
 
 @flask_app.route("/send_tx_request", methods=["POST"])
@@ -131,9 +121,9 @@ def send_the_tx_request():
             file_location = request.json["file_location"]
         else:
             log.error(
-                "Not all of the arguments were provided (request_type, file_name, file_location"
+                "Not all of the arguments were provided (request_type, file_name, file_location)"
             )
-            return "Not all of the arguments were provided (request_type, file_name, file_location"
+            return "Not all of the arguments were provided (request_type, file_name, file_location)"
     file = {
         "file_name": file_name,
         "file_location": file_location,

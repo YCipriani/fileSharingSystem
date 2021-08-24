@@ -12,28 +12,52 @@ log = get_logger()
 
 
 def create_email_body(my_request, start):
-    if start:
-        return (
-            "Dear Sir/Madam, \n\n"
-            + "A "
-            + my_request.request_type
-            + " request has been initiated for the file: "
-            + my_request.file_name_and_extension
-            + " to be stored in table/collection "
-            + my_request.file_location
-            + ".\n\n"
-        )
+    if my_request.request_type=="Tx":
+        if start:
+            return (
+                "Dear Sir/Madam, \n\n"
+                + "A "
+                + my_request.request_type
+                + " request has been initiated for the file: "
+                + my_request.file_name_and_extension
+                + " to be stored in table/collection "
+                + my_request.file_location
+                + ".\n\n"
+            )
+        else:
+            return (
+                "Dear Sir/Madam, \n\n"
+                + "The "
+                + my_request.request_type
+                + " request has been processed. File "
+                + my_request.file_name_and_extension
+                + " has been stored in table/collection "
+                + my_request.file_location
+                + ".\n\n"
+            )
     else:
-        return (
-            "Dear Sir/Madam, \n\n"
-            + "The "
-            + my_request.request_type
-            + " request has been processed. File "
-            + my_request.file_name_and_extension
-            + " has been stored in table/collection "
-            + my_request.file_location
-            + ".\n\n"
-        )
+        if start:
+            return (
+                "Dear Sir/Madam, \n\n"
+                + "A "
+                + my_request.request_type
+                + " request has been initiated for the file: "
+                + my_request.file_name_and_extension
+                + " which will be checked if it exists in collection "
+                + my_request.file_location
+                + ".\n\n"
+            )
+        else:
+            return (
+                "Dear Sir/Madam, \n\n"
+                + "The "
+                + my_request.request_type
+                + " request has been processed. File "
+                + my_request.file_name_and_extension
+                + " has been verified in table/collection "
+                + my_request.file_location
+                + ".\n\n"
+            )
 
 
 def send_email(my_request, send_to_email: str, start: bool):

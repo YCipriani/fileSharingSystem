@@ -1,8 +1,4 @@
 from pymongo import MongoClient
-from filesharing.common.globals import extensions
-from random import randrange, randint
-from filesharing.common.logger import get_logger
-from filesharing.utils.current_time import get_current_date_and_time
 
 
 class mongodbDAL:

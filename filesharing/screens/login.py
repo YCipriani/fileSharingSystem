@@ -3,15 +3,15 @@ import time
 import datetime
 from tkinter import *
 from threading import Thread
-from os.path import dirname
 import tkinter as tk
+import sys
 
 
 import requests
 
 from filesharing.common.globals import credentials, admin_email
 from filesharing.common.logger import get_logger
-from filesharing.app import start_app, new_request
+from filesharing.app import start_app
 
 from tkinter import messagebox
 
@@ -108,7 +108,7 @@ def user_menu(my_request):
     x = (ws / 2) - (w / 2)
     y = (hs / 2) - (h / 2)
     user_menu_screen.geometry("+%d+%d" % (x + 100, y + 100))
-    user_menu_screen.geometry("300x150")
+    user_menu_screen.geometry("300x175")
     if my_request.request_type == "Tx":
         Button(
             user_menu_screen,
@@ -131,6 +131,22 @@ def user_menu(my_request):
     ).pack()
     Button(user_menu_screen, text="Show Logs", command=show_logs).pack()
     Button(user_menu_screen, text="Clear Logs", command=clear_logs).pack()
+    Button(user_menu_screen, text="Close Program", command=close_program).pack()
+
+
+def reset():
+    now = datetime.datetime.now()  # current date and time
+    end = now.strftime("%Y-%m-%d %H:%M:%S")
+    date1_obj = datetime.datetime.strptime(end, "%Y-%m-%d %H:%M:%S")
+    write_service_started_time_to_file(date1_obj.strftime("%Y-%m-%d %H:%M:%S"), 0)
+    write_number_of_checks_made(0)
+
+
+def close_program():
+    reset()
+    with lock:
+        open("/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/logs/demo.log", "w").close()
+        sys.exit()
 
 
 def start_service(my_request):
@@ -157,11 +173,7 @@ def stop_service(my_request):
     finally:
         if my_request.request_type == "Tx":
             send_email(my_request, admin_email, False)
-        now = datetime.datetime.now()  # current date and time
-        end = now.strftime("%Y-%m-%d %H:%M:%S")
-        date1_obj = datetime.datetime.strptime(end, "%Y-%m-%d %H:%M:%S")
-        write_service_started_time_to_file(date1_obj.strftime("%Y-%m-%d %H:%M:%S"), 0)
-        write_number_of_checks_made(0)
+        reset()
     messagebox.showinfo("SUCCESS", "Service has stopped")
     log.info(get_current_date_and_time() + "Service has stopped")
 
@@ -175,9 +187,10 @@ def send_tx_request(request_string, my_request):
 def send_rx_request(request_string, my_request):
     message = None
     k = None
+    found = False
     for i in range(my_request.number_of_checks):
         k = i + 1
-        if requests.post(request_string):
+        if requests.post(request_string) == 'SUCCESS':
             message = (
                 get_current_date_and_time()
                 + "File "
@@ -194,7 +207,7 @@ def send_rx_request(request_string, my_request):
                 + " was NOT found in collection "
                 + my_request.file_location
             )
-            log.info(message + " (Check #" + str(k) + ")")
+            log.error(message + " (Check #" + str(k) + ")")
         write_number_of_checks_made(k)
     log_syslog(message + ", " + str(k) + " times.")
     send_snmp_trap(message + " " + str(k) + " times.")
@@ -247,8 +260,7 @@ def show_number_of_checks_made():
 
 
 def show_logs():
-    with open(dirname(dirname(__file__)) + "/logs/demo.log", "r") as f:
-        log.info(get_current_date_and_time() + "Showing Logs...")
+    with open("/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/logs/demo.log", "r") as f:
         master = tk.Tk()
         master.title(string="Logs")
         text_widget = tk.Text(master, height=50, width=100)
@@ -258,7 +270,7 @@ def show_logs():
 
 
 def clear_logs():
-    open(dirname(dirname(__file__)) + "/logs/demo.log", "w").close()
+    open("/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/logs/demo.log", "w").close()
     messagebox.showerror("SUCCESS", "Logs have been cleared")
 
 
