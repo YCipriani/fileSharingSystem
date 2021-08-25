@@ -6,7 +6,7 @@ from threading import Thread
 import tkinter as tk
 import sys
 
-
+import os
 import requests
 
 from filesharing.common.globals import credentials, admin_email
@@ -33,6 +33,7 @@ from filesharing.utils.port import read_port_from_file
 
 lock = threading.Lock()
 
+log_file_path = os.path.dirname(os.path.abspath(__file__)).replace("screens", "") + "logs/demo.log"
 
 def login(my_request):
     global log
@@ -145,7 +146,7 @@ def reset():
 def close_program():
     reset()
     with lock:
-        open("/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/logs/demo.log", "w").close()
+        open(log_file_path, "w").close()
         sys.exit()
 
 
@@ -260,7 +261,7 @@ def show_number_of_checks_made():
 
 
 def show_logs():
-    with open("/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/logs/demo.log", "r") as f:
+    with open(log_file_path, "r") as f:
         master = tk.Tk()
         master.title(string="Logs")
         text_widget = tk.Text(master, height=50, width=100)
@@ -270,7 +271,7 @@ def show_logs():
 
 
 def clear_logs():
-    open("/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/logs/demo.log", "w").close()
+    open(log_file_path, "w").close()
     messagebox.showerror("SUCCESS", "Logs have been cleared")
 
 

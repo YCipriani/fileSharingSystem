@@ -1,11 +1,15 @@
 import datetime
 import json
 from random import randint
+import os
+
+service_started_file_path = os.path.dirname(os.path.abspath(__file__)).replace("utils", "") + "resources/service_started_time.json"
+number_of_checks_file_path = os.path.dirname(os.path.abspath(__file__)).replace("utils", "") + "resources/number_of_checks.txt"
 
 
 def service_started_time():
     with open(
-        "/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/resources/service_started_time.json"
+        service_started_file_path
     ) as f:
         return json.load(f)
 
@@ -16,7 +20,7 @@ def write_service_started_time_to_file(time, flag):
     else:
         jsonData = {"started": False, "started_time": time}
     with open(
-        "/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/resources/service_started_time.json",
+        service_started_file_path,
         "w",
     ) as outfile:
         json.dump(jsonData, outfile, sort_keys=True, indent=4, ensure_ascii=False)
@@ -37,7 +41,7 @@ def get_seconds_diff(time_interval):
 
 def number_of_checks_made():
     file = open(
-        "/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/resources/number_of_checks.txt",
+        number_of_checks_file_path,
         "r",
     )
     lines = file.read().splitlines()
@@ -46,7 +50,7 @@ def number_of_checks_made():
 
 def write_number_of_checks_made(n):
     file = open(
-        "/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/resources/number_of_checks.txt",
+        number_of_checks_file_path,
         "w",
     )
     file.write(str(n))

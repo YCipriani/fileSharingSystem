@@ -1,9 +1,11 @@
 import logging
 from colorlog import ColoredFormatter
+import os
 
+log_file_path = os.path.dirname(os.path.abspath(__file__)).replace("common", "") + "logs/demo.log"
 
 def get_logger():
-    logging.basicConfig(filename="/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/logs/demo.log")
+    logging.basicConfig(filename=log_file_path)
     LOG_LEVEL = logging.INFO
     LOGFORMAT = (
         "  %(log_color)s%(levelname)-8s%(reset)s | %(log_color)s%(message)s%(reset)s"

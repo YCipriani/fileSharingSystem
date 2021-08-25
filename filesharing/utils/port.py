@@ -1,10 +1,12 @@
 import socket
 from contextlib import closing
+import os
 
+port_file_path = os.path.dirname(os.path.abspath(__file__)).replace("utils", "") + "resources/port.txt"
 
 def read_port_from_file():
     file = open(
-        "/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/resources/port.txt",
+        port_file_path,
         "r",
     )
     lines = file.read().splitlines()
@@ -13,7 +15,7 @@ def read_port_from_file():
 
 def read_all_ports_from_file():
     file = open(
-        "/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/resources/port.txt",
+        port_file_path,
         "r",
     )
     return file.read().splitlines()
@@ -21,7 +23,7 @@ def read_all_ports_from_file():
 
 def write_port_to_file(port):
     file = open(
-        "/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/resources/port.txt",
+        port_file_path,
         "a",
     )
     file.write("\n" + str(port))
