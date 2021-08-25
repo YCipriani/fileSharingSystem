@@ -1,10 +1,9 @@
 import datetime
 import json
 from random import randint
-import os
 
-service_started_file_path = os.path.dirname(os.path.abspath(__file__)).replace("utils", "") + "resources/service_started_time.json"
-number_of_checks_file_path = os.path.dirname(os.path.abspath(__file__)).replace("utils", "") + "resources/number_of_checks.txt"
+service_started_file_path = "/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/resources/service_started_time.json"
+number_of_checks_file_path = "/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/resources/number_of_checks.txt"
 
 
 def service_started_time():

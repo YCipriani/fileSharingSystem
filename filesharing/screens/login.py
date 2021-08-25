@@ -33,7 +33,7 @@ from filesharing.utils.port import read_port_from_file
 
 lock = threading.Lock()
 
-log_file_path = os.path.dirname(os.path.abspath(__file__)).replace("screens", "") + "logs/demo.log"
+log_file_path = "/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/logs/demo.log"
 
 def login(my_request):
     global log

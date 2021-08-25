@@ -1,8 +1,7 @@
 import socket
 from contextlib import closing
-import os
 
-port_file_path = os.path.dirname(os.path.abspath(__file__)).replace("utils", "") + "resources/port.txt"
+port_file_path = "/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/resources/port.txt"
 
 def read_port_from_file():
     file = open(

@@ -2,7 +2,7 @@ import logging
 from colorlog import ColoredFormatter
 import os
 
-log_file_path = os.path.dirname(os.path.abspath(__file__)).replace("common", "") + "logs/demo.log"
+log_file_path = "/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/logs/demo.log"
 
 def get_logger():
     logging.basicConfig(filename=log_file_path)
