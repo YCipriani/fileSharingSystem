@@ -1,7 +1,10 @@
 import logging
 from colorlog import ColoredFormatter
 
-log_file_path = "logs/demo.log"
+import sys
+import os
+
+log_file_path = sys.path[0].replace("common", "").replace("/base_library.zip", "") + "/logs/demo.log"
 
 def get_logger():
     logging.basicConfig(filename=log_file_path)

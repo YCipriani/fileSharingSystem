@@ -1,9 +1,11 @@
 import datetime
 import json
 from random import randint
+import os
+import sys
 
-service_started_file_path = "../resources/service_started_time.json"
-number_of_checks_file_path = "../resources/number_of_checks.txt"
+service_started_file_path = sys.path[0].replace("utils", "").replace("/base_library.zip", "") + "/resources/service_started_time.json"
+number_of_checks_file_path = sys.path[0].replace("utils", "").replace("/base_library.zip", "") + "/resources/number_of_checks.txt"
 
 
 def service_started_time():

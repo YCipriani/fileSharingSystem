@@ -50,10 +50,10 @@ def move_file():
     return "Not enough parameters were passed"
 
 
-@flask_app.route("/clear_logs", methods=["POST"])
-def clear_logs():
-    open("/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/logs/demo.log", "w").close()
-    return "Logs have been cleared"
+# @flask_app.route("/clear_logs", methods=["POST"])
+# def clear_logs():
+#     open("/Users/yonatancipriani/PycharmProjects/fileSharing/filesharing/logs/demo.log", "w").close()
+#     return "Logs have been cleared"
 
 
 @flask_app.route("/send_request", methods=["POST"])

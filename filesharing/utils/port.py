@@ -2,7 +2,7 @@ import socket
 import sys
 from contextlib import closing
 
-port_file_path = "resources/port.txt"
+port_file_path = sys.path[0].replace("utils", "").replace("/base_library.zip", "") + "port.txt"
 
 def read_port_from_file():
     file = open(
@@ -34,5 +34,3 @@ def find_free_port():
         s.bind(("", 0))
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         return s.getsockname()[1]
-
-read_port_from_file()

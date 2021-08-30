@@ -1,8 +1,11 @@
 import json
+import os
+import sys
+
 from filesharing.common.logger import get_logger
 from filesharing.utils.current_time import get_current_date_and_time
 
-credentials_file_path = "resources/credentials.json"
+credentials_file_path = sys.path[0].replace("common", "").replace("/base_library.zip", "") + "/resources/credentials.json"
 
 
 def get_all_credentials():
